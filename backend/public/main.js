@@ -29,7 +29,7 @@ if (chatBox && input && button) {
   });
 
   function sendToBot(message) {
-    fetch('https://poker-joker-bot.onrender.com/api/pokerjoker', {
+    fetch("/api/pokerjoker", {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message })
