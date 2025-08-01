@@ -11,11 +11,7 @@ const openai = new OpenAI({
 });
 
 const app = express();
-app.get("/", (req, res) => {
-  res.send("Poker Joker Backend läuft 😎");
-});
-
-const port = 3001;
+const port = process.env.PORT || 3001;
 
 // 🃏 Comedy-DNA laden
 let spruecheDaten = [];
@@ -73,6 +69,14 @@ ${comedyIntro}
     }
     res.status(500).json({ error: 'Etwas ist schiefgelaufen beim Reden mit dem Poker Joker.' });
   }
+});
+
+// Statisches Frontend aus dem public-Ordner serven
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Catch-All: Wenn kein API-Call, dann index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Server starten
