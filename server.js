@@ -11,6 +11,10 @@ const openai = new OpenAI({
 });
 
 const app = express();
+app.get("/", (req, res) => {
+  res.send("Poker Joker Backend läuft 😎");
+});
+
 const port = 3001;
 
 // 🃏 Comedy-DNA laden
