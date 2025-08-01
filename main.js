@@ -45,6 +45,33 @@ if (chatBox && input && button) {
       });
   }
 
+// 📤 Anfrage an den Poker Joker senden
+const sendBtn = document.getElementById("sendButton");
+const inputField = document.getElementById("userInput");
+
+if (sendBtn && inputField) {
+  sendBtn.addEventListener("click", async () => {
+    const message = inputField.value.trim();
+    if (!message) return;
+
+    appendMessage("user", message);
+    inputField.value = "";
+
+    try {
+      const res = await fetch("/api/pokerjoker", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await res.json();
+      appendMessage("bot", data.reply || "😅 Keine Antwort vom Server.");
+    } catch (err) {
+      appendMessage("bot", "❌ Fehler beim Laden der Antwort.");
+    }
+  });
+}
+
   function appendMessage(sender, text) {
     const msg = document.createElement('div');
     msg.classList.add('message', sender);
