@@ -73,7 +73,7 @@ ${comedyIntro}
 
 const inMaintenance = process.env.MAINTENANCE_MODE === 'true';
 
-app.get('*', (req, res) => {
+app.get('/', (req, res) => {
   const fileToSend = inMaintenance
     ? 'maintenance.html'
     : 'index.html';
