@@ -71,7 +71,7 @@ ${comedyIntro}
   }
 });
 
-const inMaintenance = process.env.MAINTENANCE_MODE === 'true'; // <-- Setze auf true bei Wartung und bei live auf false
+const inMaintenance = process.env.MAINTENANCE_MODE === 'true';
 
 app.get('*', (req, res) => {
   const fileToSend = inMaintenance
