@@ -71,13 +71,17 @@ ${comedyIntro}
   }
 });
 
+const inMaintenance = process.env.MAINTENANCE_MODE === 'true'; // <-- Setze auf true bei Wartung und bei live auf false
+
+app.get('*', (req, res) => {
+  const fileToSend = inMaintenance
+    ? 'maintenance.html'
+    : 'index.html';
+  res.sendFile(path.join(__dirname, 'public', fileToSend));
+});
+
 // Statisches Frontend aus dem public-Ordner serven
 app.use(express.static(path.join(__dirname, 'public')));
-
-// Catch-All: Wenn kein API-Call, dann index.html
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
 
 // Server starten
 app.listen(port, () => {
