@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Poker Joker</title>
+  <link rel="icon" href="/app/joker-avatar.png" type="image/png">
+  <link rel="stylesheet" href="./style.css?v=oval1">
+</head>
+<body>
+  <header class="header">
+  <div class="header-inner">
+    <h1 class="title">
+      Poker Joker <span class="title-icons">🤖 🃏</span>
+    </h1>
+    <img src="./joker-avatar.png" alt="Joker Avatar" class="avatar">
+  </div>
+
+  <div class="buyin-center">
+    <span class="token-info">
+      Tokens: <strong id="tokenBalance">0</strong> / gekauft:
+      <strong id="tokenPurchased">0</strong>
+    </span>
+    <button id="buyinBtn" class="btn buyin">💰 Buy-in</button>
+  </div>
+</header>
+
+  <!-- Logout (fixiert neben dem Burger) -->
+  <button id="logoutBtn" class="btn-logout" type="button">Logout</button>
+
+  <!-- Hamburger -->
+  <input type="checkbox" id="menu-toggle" hidden /> 
+  <label for="menu-toggle" class="hamburger-menu">
+    <span class="menu-icon"><span class="navicon"></span></span>
+  </label>
+
+  <!-- Menü (dynamisch) -->
+  <nav class="menu">
+    <ul id="submenu"></ul>
+  </nav>
+
+  <!-- Kontakt-Formular als Template (Slug 'contact' nutzt diesen Inhalt) -->
+  <template id="contactTemplate">
+    <form id="contactForm" autocomplete="off">
+      <label for="contactName">Name:</label>
+      <input type="text" id="contactName" name="name" required>
+      <label for="contactEmail">E-Mail:</label>
+      <input type="email" id="contactEmail" name="email" required>
+      <label for="contactSubject">Subject:</label>
+      <input type="text" id="contactSubject" name="subject" required>
+      <label for="contactMessage">Message:</label>
+      <textarea id="contactMessage" name="message" rows="4" required></textarea>
+      <button type="submit">send</button>
+      <span id="contactStatus" style="margin-left:10px;"></span>
+    </form>
+  </template>
+
+  <main>
+    <div id="chatBox" class="chat-box"></div>
+    <div id="infoWindow" class="info-window"></div>
+
+    <div class="input-area">
+      <textarea id="userInput" rows="2" placeholder="Ask me about poker, Digga..."></textarea>
+      <button id="micButton">🎤</button>
+      <button id="sendButton">Let's go!</button>
+    </div>
+    <div style="min-height:24px">
+      <span id="speechStatus" style="margin-left:12px;color:#ffd600;font-weight:bold"></span>
+    </div>
+
+    <div class="clear-btn-wrapper">
+      <button id="clearChatButton" class="clear-btn">Delete chat history</button>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>Made with ❤️ from Digga for poker novices</p>
+  </footer>
+
+  <script defer src="./main.js"></script>
+</body>
+</html>

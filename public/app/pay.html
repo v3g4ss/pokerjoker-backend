@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Token kaufen – Poker Joker</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+      color: #fff;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 1rem;
+    }
+
+    .package {
+      border: 2px solid #ffcc00;
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem auto;
+      max-width: 400px;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .price {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #ffcc00;
+      margin: 1rem 0;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      margin: 0.5rem 0;
+      padding: 1rem;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .stripe-btn {
+      background-color: #635bff;
+      color: white;
+    }
+
+    .paypal-btn {
+      background-color: #ffc439;
+      color: #111;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 2rem;
+      color: #ccc;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>💰 Token kaufen</h1>
+
+  <div class="package">
+    <p>🔥 <strong>10.000 Tokens</strong> für deinen nächsten Schlagabtausch mit dem Poker Joker 🤖🃏</p>
+    <p class="price">35,00 €</p>
+
+    <button class="btn stripe-btn" id="buyStripe">Mit Stripe zahlen</button>
+    <button class="btn paypal-btn" id="buyPaypal">Mit PayPal zahlen</button>
+  </div>
+
+  <a class="back-link" href="/app">← Zurück zur App</a>
+
+  <script>
+    document.getElementById('buyStripe')?.addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/pay/stripe/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+        });
+
+        const data = await res.json();
+        if (data?.url) {
+          window.location.href = data.url;
+        } else {
+          alert('Stripe-Checkout fehlgeschlagen!');
+        }
+      } catch (err) {
+        alert('Stripe Fehler: ' + err.message);
+      }
+    });
+
+    document.getElementById('buyPaypal')?.addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/pay/paypal/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+        });
+
+        const data = await res.json();
+        const approveLink = data.links?.find(l => l.rel === 'approve')?.href;
+
+        if (approveLink) {
+          window.location.href = approveLink;
+        } else {
+          alert('PayPal-Checkout fehlgeschlagen!');
+        }
+      } catch (err) {
+        alert('PayPal Fehler: ' + err.message);
+      }
+    });
+  </script>
+
+  <!-- Utils & Auth -->
+  <script src="/app/js/utils.js"></script>
+  <script>
+    checkAuth(); // 🔐 Login prüfen
+  </script>
+</body>
+</html>

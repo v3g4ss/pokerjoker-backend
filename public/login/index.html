@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Poker Joker – Login</title>
+  <style>
+    body {
+      font-family: system-ui, Segoe UI, Roboto, Arial;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      min-height: 100vh; display: grid; place-items: center; margin: 0; color: #eee;
+    }
+    .card { width: min(420px, 92vw); background: #11182a; border-radius: 16px; box-shadow: 0 12px 30px rgba(0,0,0,.35); padding: 24px; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+    .tabs button { flex: 1; padding: 10px; border: 0; border-radius: 12px; background: #19213a; color: #eee; cursor: pointer; }
+    .tabs button.active { background: #223058; outline: 2px solid #ffd600; }
+    label { display: block; font-size: .9rem; margin: 12px 0 6px; color: #ffd600; }
+    input { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2a3356; background: #1b2341; color: #fff; }
+    .actions { margin-top: 16px; display: flex; gap: 10px; justify-content: flex-end; }
+    .btn { padding: 10px 14px; border: 0; border-radius: 10px; background: #ff4d00; color: #fff; font-weight: 700; cursor: pointer; }
+    .muted { opacity: .8; font-size: .9rem; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h1>Welcome to Poker Joker 🃏</h1>
+  <div class="tabs">
+    <button id="tab-login" class="active">Login</button>
+    <button id="tab-signup">Sign up</button>
+  </div>
+
+  <!-- Login -->
+  <form id="loginForm">
+    <label for="loginEmail">Mail</label>
+    <input id="loginEmail" type="email" autocomplete="email" required />
+    <label for="loginPassword">Password</label>
+    <input id="loginPassword" type="password" autocomplete="current-password" required />
+    <div class="actions"><button class="btn" type="submit">Login</button></div>
+    <div id="loginMsg" class="msg"></div>
+    <div class="forgot-wrap">
+      <a class="forgot-link" href="/login/reset.html">Password forget?</a>
+    </div>
+  </form>
+
+  <!-- Sign up -->
+  <form id="signupForm" hidden>
+    <label for="suEmail">Mail</label>
+    <input id="suEmail" type="email" autocomplete="email" required />
+    <label for="suPassword">Password</label>
+    <input id="suPassword" type="password" autocomplete="new-password" minlength="8" required />
+    <label for="suPassword2">Repeat password</label>
+    <input id="suPassword2" type="password" autocomplete="new-password" minlength="8" required />
+    <div class="actions">
+      <button class="btn" type="submit">Create account</button>
+    </div>
+    <div id="signupMsg" class="msg"></div>
+  </form>
+
+  <p class="muted" style="text-align:right;margin-top:6px;">After login you will be redirected to app.</p>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const tabLogin = $('#tab-login');
+const tabSignup = $('#tab-signup');
+const loginForm = $('#loginForm');
+const signupForm = $('#signupForm');
+
+function showLogin() {
+  tabLogin.classList.add('active');
+  tabSignup.classList.remove('active');
+  loginForm.hidden = false;
+  signupForm.hidden = true;
+  $('#loginMsg').textContent = '';
+  $('#signupMsg').textContent = '';
+}
+
+function showSignup() {
+  tabSignup.classList.add('active');
+  tabLogin.classList.remove('active');
+  loginForm.hidden = true;
+  signupForm.hidden = false;
+  $('#loginMsg').textContent = '';
+  $('#signupMsg').textContent = '';
+}
+
+tabLogin?.addEventListener('click', showLogin);
+tabSignup?.addEventListener('click', showSignup);
+
+// === LOGIN ===
+loginForm?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = $('#loginEmail').value.trim().toLowerCase();
+  const password = $('#loginPassword').value;
+  const msg = $('#loginMsg'); msg.textContent = '...';
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || 'Login fehlgeschlagen');
+    location.href = data.redirect || '/app';
+  } catch (err) {
+    msg.textContent = err.message || 'Fehler beim Login';
+  }
+});
+
+// === SIGNUP (Double Opt-In) ===
+signupForm?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = $('#suEmail').value.trim().toLowerCase();
+  const pass1 = $('#suPassword').value;
+  const pass2 = $('#suPassword2').value;
+  const msg = $('#signupMsg'); msg.textContent = '...';
+
+  if (pass1 !== pass2) {
+    msg.textContent = 'Passwörter stimmen nicht überein.';
+    return;
+  }
+  if (pass1.length < 8) {
+    msg.textContent = 'Passwort zu kurz (min. 8 Zeichen).';
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email, password: pass1 })
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok)
+      throw new Error(data.message || (res.status === 409 ? 'E-Mail existiert bereits.' : 'Signup fehlgeschlagen'));
+
+    if (data.ok) {
+      msg.textContent = '✅ Bitte bestätige deine E-Mail-Adresse über den Link in deinem Postfach.';
+      setTimeout(() => showLogin(), 3000);
+    }
+  } catch (err) {
+    msg.textContent = err.message || 'Fehler beim Sign up';
+  }
+});
+
+showLogin();
+</script>
+
+</body>
+</html>

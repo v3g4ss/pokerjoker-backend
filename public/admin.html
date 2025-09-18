@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin – Poker Joker</title>
+  <style>
+    :root { color-scheme: dark; }
+
+    body {
+      margin: 18px;
+      font-family: system-ui, Segoe UI, Arial;
+      background: #0f1115;
+      color: #eaeaea;
+    }
+
+    h1 { margin: 0 0 12px }
+    .grid { display: grid; gap: 14px }
+    @media(min-width:900px) { .grid { grid-template-columns: 1fr 1fr } }
+
+    .card {
+      background: #151821;
+      border: 1px solid #232839;
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+    input, button, select, textarea {
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #ad9844;
+      background: #141e3f;
+      color: #eaeaea;
+    }
+
+    button { cursor: pointer; }
+    button:disabled { opacity: 0.6; cursor: wait; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: .95rem;
+    }
+
+    th, td {
+      border-bottom: 1px solid #232839;
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th { font-weight: 600; color: #b9c2ff; }
+
+    .muted { opacity: 0.7 }
+    .right { float: right }
+    .mono { font-family: ui-monospace, Menlo, Consolas, monospace }
+    .span-2 { grid-column: 1 / -1 }
+
+    #logoutBtn {
+      position: fixed;
+      top: 12px;
+      right: 16px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid #e6e8ef;
+      background: #1f2333;
+      color: #eaeaea;
+    }
+    #logoutBtn:hover { background: #2a3046; }
+
+    /* Icon-Button Farben */
+    button[title="Bearbeiten"] { color: #f1c40f; }
+    button[title="Speichern"]  { color: #2ecc71; }
+    button[title="Löschen"]    { color: #e74c3c; }
+    button[title] { background: transparent; border: none; font-size: 1.2rem; }
+
+    /* KPI-Grid */
+    .kpi-grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin: 12px 0 16px;
+    }
+    .kpi-grid > div{
+      padding: 8px 10px;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 10px;
+      background: rgba(0,0,0,.2);
+    }
+  </style>
+</head>
+<body>
+  <h1>Admin Dashboard 🛠️ <span id="me" class="muted mono"></span></h1>
+  <button id="logoutBtn" title="Abmelden">Logout</button>
+
+  <!-- KPIs (gestapelt) -->
+<div class="kpi-list">
+  <div>Kunden: <span id="statCustomers">0</span></div>
+  <div>Admins: <span id="statAdmins">0</span></div>
+  <div>E-Mails gesamt: <span id="statMsgs">0</span></div>
+  <div>Neue E-Mails: <span id="statMsgsNew">0</span></div>
+  <div>Tokens gekauft (Buy-Ins): <span id="statPurchased">0</span></div>
+  <div>Tokens vergeben (Admin +): <span id="statAdminGranted">0</span></div>
+  <div>Tokens im Umlauf: <span id="statTokensCirculation">0</span></div>
+</div>
+
+  <!-- Mein Passwort ändern -->
+  <div class="card" style="margin:12px 0;">
+    <h2>Mein Passwort ändern</h2>
+    <div class="row" style="gap:8px;">
+      <input id="meOldPass" type="password" placeholder="Aktuelles Passwort">
+      <input id="meNewPass" type="password" placeholder="Neues Passwort (min 6)">
+      <button id="btnMePass">Ändern</button>
+      <span id="mePassStatus" class="muted"></span>
+    </div>
+  </div>
+
+  <!-- Users -->
+  <div style="margin:12px 0;">
+    <input id="userSearch" placeholder="Suche E-Mail…">
+    <button id="btnSearch">Suchen</button>
+  </div>
+
+  <div class="card" style="margin:12px 0;">
+    <h2>User anlegen</h2>
+    <div class="row" style="gap:8px">
+      <input id="newUserEmail" type="email" placeholder="E-Mail">
+      <input id="newUserPass" type="password" placeholder="Passwort (min 6)">
+      <label class="row" style="gap:6px"><input id="newUserAdmin" type="checkbox"> Admin</label>
+      <button id="btnCreateUser">Anlegen</button>
+      <span id="createUserStatus" class="muted"></span>
+    </div>
+  </div>
+
+  <table id="usersTbl">
+    <thead>
+      <tr>
+        <th>ID</th><th>E-Mail</th><th>Admin</th><th>Status</th>
+        <th>Tokens</th><th>Purchased</th><th>Aktion</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <div style="margin:12px 0;">
+    <button id="prevPage">← Prev</button>
+    <span id="pageInfo"></span>
+    <button id="nextPage">Next →</button>
+  </div>
+
+  <div class="grid">
+    <!-- Tokens -->
+    <section class="card">
+      <h2>Tokens anpassen</h2>
+      <label>
+        User-ID:
+        <input id="tokenUserId" type="number" placeholder="User-ID" />
+      </label>
+      <label>
+        Tokens:
+        <input id="tokenDelta" type="number" placeholder="Anzahl Tokens" />
+      </label>
+      <label>
+        Grund:
+        <input id="tokenReason" type="text" placeholder="z.B. Bonus, Korrektur ..." />
+      </label>
+      <div style="margin-top:10px; display:flex; gap:8px">
+        <button id="btnAddTokens">Tokens hinzufügen</button>
+        <button id="btnRemoveTokens" style="background:#e74c3c;color:#fff">Tokens abziehen</button>
+        <button id="btnRefreshUsers" class="refresh-btn">🔄 Aktualisieren</button>
+      </div>
+      <div id="tokenStatus" class="muted" style="margin-top:6px"></div>
+    </section>
+
+    <!-- Kontakt-Anfragen -->
+    <section class="card span-2">
+      <h2>Kontakt-Anfragen</h2>
+      <div class="row">
+        <button id="btnContactPrev">←</button>
+        <button id="btnContactNext">→</button>
+        <button id="btnContactReload">Aktualisieren</button>
+        <input id="msgSearch" placeholder="Suche (Betreff/Name/E-Mail)">
+        <span id="msgPageInfo" class="muted">–</span>
+      </div>
+      <table class="contacts">
+        <thead>
+          <tr>
+            <th>Datum-Uhrzeit-wie alt?</th><th>User-ID</th><th>Name</th><th>Email-Adresse User</th>
+            <th>Subject</th><th>Email Inhalt</th><th>Aktion</th><th>Datum Antwort</th>
+          </tr>
+        </thead>
+        <tbody id="contactRows"></tbody>
+      </table>
+      <div id="detailBox">Wähle links eine Nachricht aus.</div>
+    </section>
+  </div>
+
+  <!-- User-Ledger -->
+  <section class="card">
+    <h2>User-Ledger</h2>
+    <div class="row">
+      <input id="ledgerUserId" type="number" min="1" value="1" placeholder="User ID">
+      <button id="btnLoadUserLedger">Laden</button>
+      <span class="muted">neueste 50</span>
+    </div>
+    <table id="userLedgerTbl">
+      <thead><tr><th>ID</th><th>Δ</th><th>Reason</th><th>Balance</th><th>Time</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- Summary -->
+  <section class="card">
+    <h2>User-Summary <button class="right" id="btnLoadSummary">Aktualisieren</button></h2>
+    <table id="summaryTbl">
+      <thead><tr><th>User</th><th>gekauft</th><th>in</th><th>out</th><th>Balance</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- Letzte Ledger -->
+  <section class="card">
+    <h2>Letzte 200 Ledger <button class="right" id="btnLoadLast200">Aktualisieren</button></h2>
+    <table id="lastTbl">
+      <thead><tr><th>ID</th><th>User</th><th>Δ</th><th>Reason</th><th>Balance</th><th>Time</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+<!-- Prompt & Chat-Mode -->
+<section class="card">
+  <h2>Prompt-Playground</h2>
+  <textarea id="admPrompt" rows="6" placeholder="Gib deinen System-Prompt ein…"></textarea>
+
+  <div class="row" id="ppControls" style="margin-top:8px;gap:8px;flex-wrap:wrap;">
+    <label>Temperatur
+      <input id="admTemp" type="number" step="0.1" min="0" max="2" style="width:88px;">
+    </label>
+
+    <label>Modell wählen
+      <select id="admModel">
+        <option>gpt-4o-mini</option>
+        <option>gpt-4o</option>
+        <option>gpt-4.1-mini</option>
+      </select>
+    </label>
+
+    <!-- NEU: Tokenverbrauch -->
+    <label>Tokens pro Satzzeichen
+      <input id="punctRate" type="number" min="0" step="1" value="1" style="width:80px;">
+    </label>
+
+    <label>Max Tokens pro Antwort
+      <input id="maxUsedTokens" type="number" min="1" step="10" value="1000" style="width:100px;">
+    </label>
+
+    <button id="btnPromptTest">Testen</button>
+    <button id="btnPromptSave">Speichern (LIVE)</button>
+    <span id="promptStatus" class="muted"></span>
+  </div>
+
+  <pre id="admAnswer" class="mono" style="white-space:pre-wrap;margin-top:10px">(kein Output)</pre>
+
+  <div class="row" id="chatModeBox" style="margin-top:10px;gap:12px;">
+    <label><input type="radio" name="chatMode" value="KB_ONLY"> KB</label>
+    <label><input type="radio" name="chatMode" value="KB_PREFERRED" checked> KB bevorzugt + LLM</label>
+    <label><input type="radio" name="chatMode" value="LLM_ONLY"> LLM</label>
+    <button id="btnChatModeSave">Speichern (LIVE)</button>
+    <span id="chatModeStatus" class="muted"></span>
+  </div>
+</section>
+
+  <!-- Knowledge-Bibliothek -->
+  <section class="card span-2">
+    <h2>Knowledge-Bibliothek</h2>
+    <div class="row" style="gap:8px;margin-bottom:8px">
+      <input id="kbTitle" placeholder="Titel (optional)">
+      <input id="kbCategory" placeholder="Kategorie (z.B. Regeln, Strategie)">
+      <input id="kbTags" placeholder="Tags (kommagetrennt)">
+      <input id="kbFiles" type="file" multiple
+        accept=".md,.mdx,.txt,.json,.jsonl,.csv,.pdf,.docx,.html,.srt,.vtt,.xlsx,.js,.ts">
+      <button id="kbUpload">Upload</button>
+      <span id="kbStatus" class="muted"></span>
+    </div>
+    <div class="row" style="gap:8px;margin-bottom:8px">
+      <input id="kbSearch" placeholder="Suche …">
+      <input id="kbCatFilter" placeholder="Kategorie-Filter">
+      <button id="kbSearchBtn">Suchen</button>
+      <button id="kbReindex" title="Suchindex neu aufbauen">Suchindex neu aufbauen</button>
+      <span id="kbIndexInfo" class="muted" style="margin-left:8px"></span>
+    </div>
+    <table id="kbTable">
+      <thead><tr><th>ID</th><th>Titel</th><th>File</th><th>Kat</th><th>Tags</th><th>Aktiv</th><th>Prio</th><th>Aktion</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- Untermenüs -->
+  <section class="card span-2">
+    <h2>Untermenüs verwalten</h2>
+    <div class="row" style="gap:8px;margin-bottom:8px">
+      <button id="mnAdd">+ Untermenü</button>
+      <span id="mnStatus" class="muted"></span>
+    </div>
+    <table id="mnTable">
+      <thead><tr><th>#</th><th>Titel</th><th>Ort</th><th>Aktiv</th><th>Aktion</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div id="mnEditor" style="margin-top:10px;display:none">
+      <h4 id="mnEdTitle" style="margin:6px 0">Bearbeiten</h4>
+      <div contenteditable="true" id="mnEdArea" style="min-height:160px;border:1px solid #2b3145;border-radius:8px;padding:10px;"></div>
+      <div class="row" style="margin-top:8px">
+        <select id="mnEdLoc">
+          <option value="both">Live + Login</option>
+          <option value="live">nur Live</option>
+          <option value="login">nur Login</option>
+        </select>
+        <label><input type="checkbox" id="mnEdActive" checked> aktiv</label>
+        <button id="mnSave">Speichern</button>
+        <button id="mnDelete">Löschen</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="/app/admin.js?v=20250829" defer></script>
+  <script src="/app/admin-kb.js?v=20250830" defer></script>
+  <script src="/app/admin-editor.js?v=20250831" defer></script>
+  <script src="/app/js/admin-contacts.js?v=20250831" defer></script>
+</body>
+</html>

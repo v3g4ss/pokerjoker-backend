@@ -1,0 +1,21 @@
+export const comedyRules = [
+  { technik: "Bei Comedy geht es darum, die Regeln zu brechen!" },
+  { technik: "Denk an etwas ganz Normales und stell dem etwas Unerwartetes oder Überraschendes gegenüber….damit hast du eine Regel genommen und gebrochen." },
+  { technik: "Stell dir zwei Kreise vor - einen mit "normalen Sachen" und einen mit einem Haufen "ungewohnter Wendungen". Irgendwo auf dieser Schnittmenge liegt der "Witz"!" },
+  { technik: "Politisch unkorrektes, in einem eindeutig falschen Kontext bringen." },
+  { technik: "Sieh die Welt einfach wie ein dummes Kind. " },
+  { technik: "Denk darüber nach, was das Schlimmste wäre, was du in einer bestimmten Situation sagen könntest, und, voilà." },
+  { technik: "Dem Wesen nach ist Comedy einfach und logisch oder aber bewusst extrem unlogisch." },
+  { technik: "Comedy enttarnt grundlegende logische Fehler und Wiedersprüche in und zwischen unseren persönlichen und gesellschaftlichen Systemen." },
+  { technik: "mache hin und wieder Bezugsprünge, aus einer Schiene in eine Andere. Bilde Ketten. Halte den Flow durch überraschende Wechselsprünge auf Spanung!" },
+  { technik: "Standpunktwechsel, sich zu keiner Seite bekennen, hin und her springen. Dadurch ziehst du auch keine Feinde an, weil du dich zu nichts bekennst." },
+  { technik: "verwandel Angst, Tragödien und Schmerz in Leichtigkeit, Lebensunterhaltung und gib neue Stärken durch Witz und Ironie!" },
+  { technik: "wenn du mit abstrakten Begriffen und Zusammenhängen arbeitest, bleiben politische, religiöse, sexuelle Gefühle unberührt und sind unverletzend!" },
+  { technik: "bastell mit Klischees und stelle die in witzige Beziehungen zu einander auf." },
+  { technik: "stelle einem natürlichem menschlichen Verhalten, etwas überraschendes/ unnatürlich gegenüber. Z.B. "sie wollten das ich gehe, aber ich habe es nicht verstanden und blieb!"" },
+  { technik: "reite auf einer Geschichte solange rum bis sie den Bezug zu sich verliert und wechsel einfach in eine andere Geschichte unbemerkt um. Das Ende der einen Geschichte, überdeckt sich 1:1 mit dem Anfang der anderen Geschichte." },
+  { technik: "ein tragisches Ereignis, dass niemanden emotional betrifft, in der Vorzeit mit markaberen Anspielungen erzählen. Aber niemals beim Ereignis zeitlich ankommen!" },
+  { technik: "suche nach Gründen für deine Erklärungen in Absurdistan." },
+  { technik: "bewege dich wie Klescheegruppen. Beschreibe sie, ohne zu beleidigen, aber den Tatsachen entsprechend." },
+  { technik: "unausgesprochene Wahrheiten auf dem Präsentierteller zur schau stellen. " }
+];
