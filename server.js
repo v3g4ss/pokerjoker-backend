@@ -99,17 +99,16 @@ app.use('/api/password', require('./routes/password'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/app', express.static(path.join(__dirname, 'public', 'app')));
 
+app.get('/', (req, res) => {
+  res.redirect('/app');
+});
+
 app.get('/admin', requireAuth, requireAdmin, (_req, res) =>
   res.sendFile(path.join(__dirname, 'public', 'admin.html'))
 );
 app.get('/app', (_req, res) =>
   res.sendFile(path.join(__dirname, 'public', 'app', 'index.html'))
 );
-
-// Weiterleitung für alte /verify-Links aus Mails → neue API-Route
-app.get('/verify', (req, res) => {
-  res.redirect(`/api/auth/verify?token=${req.query.token}`);
-});
 
 /* =======================================================================
  * 8) Mail & Kontakt
