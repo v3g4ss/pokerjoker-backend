@@ -184,25 +184,25 @@ app.all('/api/*', (req, res) => {
   res.status(404).json({ ok: false, error: `API '${req.originalUrl}' nicht gefunden.` });
 });
 
-// === Testmail-Route ===
+// === Testmail-Route (nur Debug, später entfernen) ===
 app.get('/api/testmail', async (req, res) => {
+  const transporter = req.app.locals.transporter;
+  if (!transporter) {
+    return res.status(500).json({ ok: false, error: 'Kein Mail-Transporter vorhanden' });
+  }
+
   try {
-    if (!app.locals.transporter) {
-      return res.status(500).json({ ok: false, msg: 'Kein Mail-Transporter verfügbar' });
-    }
-
-    const info = await app.locals.transporter.sendMail({
+    const info = await transporter.sendMail({
       from: process.env.SMTP_FROM,
-      to: process.env.CONTACT_RECEIVER || process.env.SMTP_FROM, // wohin Testmail geht
-      subject: '✅ Testmail vom Poker Joker',
-      text: 'Das ist eine Testmail – wenn du sie bekommst, funktioniert dein SendGrid Setup 🎉',
+      to: process.env.CONTACT_RECEIVER || process.env.SMTP_FROM,
+      subject: 'Poker Joker Testmail',
+      text: 'Das ist eine Testmail vom Poker Joker Server 🚀'
     });
-
-    console.log('Testmail gesendet:', info.messageId);
-    res.json({ ok: true, msg: 'Testmail verschickt', id: info.messageId });
+    console.log('📧 Testmail gesendet:', info.messageId);
+    res.json({ ok: true, msg: 'Testmail gesendet', id: info.messageId });
   } catch (err) {
-    console.error('Fehler beim Senden der Testmail:', err);
-    res.status(500).json({ ok: false, msg: err.message });
+    console.error('❌ Testmail Fehler:', err);
+    res.status(500).json({ ok: false, error: err.message });
   }
 });
 
